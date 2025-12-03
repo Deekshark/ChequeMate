@@ -31,36 +31,36 @@ export function ChequePreview({ data, isPrinting = false }: ChequePreviewProps) 
         <div className="absolute inset-0 font-mono text-[#1a1a1a]">
           
           {/* Date - Top Right Box */}
-          {/* Adjusted positions based on standard cheque layout visual estimation */}
-          <div className={`${printStyle} top-[14%] right-[5%] text-[1.1vw] tracking-[0.3em]`}>
+          {/* Adjusted positions to prevent overlap and align better with standard lines */}
+          <div className={`${printStyle} top-[12%] right-[6%] text-[1.1vw] tracking-[0.4em] font-bold`}>
              {isPrinting ? (
                <Typewriter text={formatDate(data.date)} speed={50} />
              ) : formatDate(data.date)}
           </div>
 
           {/* Payee Name - "Pay" line */}
-          <div className={`${printStyle} top-[27%] left-[16%] text-[1.4vw] w-[60%]`}>
+          <div className={`${printStyle} top-[30%] left-[14%] text-[1.5vw] w-[65%] leading-none tracking-wide`}>
             {isPrinting ? (
                <Typewriter text={data.payeeName} speed={30} delay={0.5} />
              ) : data.payeeName}
           </div>
 
-          {/* Amount Words - "Rupees" line */}
-          <div className={`${printStyle} top-[38%] left-[18%] text-[1.1vw] w-[60%] leading-relaxed`}>
+          {/* Amount Words - "Rupees" line - Moved down to avoid overlap */}
+          <div className={`${printStyle} top-[46%] left-[16%] text-[1.2vw] w-[60%] leading-tight italic`}>
              {isPrinting ? (
                <Typewriter text={data.amountWords} speed={15} delay={1.5} />
              ) : data.amountWords}
           </div>
 
-          {/* Amount Figures - Box on the right */}
-          <div className={`${printStyle} top-[38%] right-[6%] text-[1.6vw] w-[18%] text-center bg-white/20`}>
+          {/* Amount Figures - Box on the right - Aligned with Words */}
+          <div className={`${printStyle} top-[44%] right-[5%] text-[1.8vw] w-[20%] text-center tracking-widest`}>
              {isPrinting ? (
                <Typewriter text={`₹ ${data.amountFigures}/-`} speed={50} delay={3.5} />
              ) : `₹ ${data.amountFigures}/-`}
           </div>
 
           {/* Account Number - Bottom Left */}
-          <div className={`${printStyle} bottom-[18%] left-[12%] text-[1.2vw] tracking-[0.1em]`}>
+          <div className={`${printStyle} bottom-[15%] left-[14%] text-[1.3vw] tracking-[0.15em]`}>
              {isPrinting ? (
                <Typewriter text={data.accountNumber} speed={20} delay={4.0} />
              ) : data.accountNumber}
