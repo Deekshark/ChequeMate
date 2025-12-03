@@ -3,6 +3,7 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
 import { motion, AnimatePresence } from "framer-motion";
+import { useMutation } from "@tanstack/react-query";
 import { 
   Keyboard, 
   Mic, 
@@ -24,6 +25,7 @@ import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "
 import { ChequePreview } from "@/components/cheque-preview";
 import { numberToWords } from "@/lib/numberConverter";
 import { Separator } from "@/components/ui/separator";
+import { useToast } from "@/hooks/use-toast";
 
 // --- Schemas & Types ---
 const formSchema = z.object({
@@ -46,13 +48,35 @@ export default function ChequeKiosk() {
     amountFigures: "",
     amountWords: "",
     date: new Date().toISOString().split('T')[0],
-    accountNumber: "1234 5678 9012" // Spaced for readability
+    accountNumber: "1234 5678 9012"
   });
+
+  const { toast } = useToast();
 
   const form = useForm<FormData>({
     resolver: zodResolver(formSchema),
     defaultValues: formData,
     mode: "onChange"
+  });
+
+  // API mutation for saving cheque records
+  const saveChequeRecord = useMutation({
+    mutationFn: async (data: FormData) => {
+      const response = await fetch("/api/cheque-records", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(data),
+      });
+      if (!response.ok) throw new Error("Failed to save record");
+      return response.json();
+    },
+    onError: () => {
+      toast({
+        title: "Warning",
+        description: "Cheque printed but audit record failed to save.",
+        variant: "destructive",
+      });
+    },
   });
 
   // Auto-fill effect
@@ -73,9 +97,14 @@ export default function ChequeKiosk() {
 
   const handlePrint = () => {
     setStep("printing");
+    
+    // Save to database for audit trail
+    saveChequeRecord.mutate(formData);
+    
+    // Simulate print duration
     setTimeout(() => {
       setStep("complete");
-    }, 5000); // Match animation duration
+    }, 5000);
   };
 
   const handleReset = () => {
@@ -316,10 +345,8 @@ export default function ChequeKiosk() {
                 size="lg"
                 className="w-full"
                 onClick={() => {
-                  // Mock voice fill
                   form.setValue("payeeName", "Ramesh Kumar");
                   form.setValue("amountFigures", "5000");
-                  // Effect will trigger word conversion
                   setStep("manual-entry");
                 }}
               >
